@@ -17,13 +17,13 @@ describe('Subscribe', function() {
         Score.subscribe(function(err, changes) {
           changes.on('data', function(change) {
             expect(change.type).to.equal('create');
+            changes.destroy();
             done();
           });
+
+          Score.create({team: 'foo'});
         });
-
-        Score.create({team: 'foo'});
       });
-
 
       it('should detect update', function(done) {
         var Score = this.Score;
@@ -31,13 +31,12 @@ describe('Subscribe', function() {
           Score.subscribe(function(err, changes) {
             changes.on('data', function(change) {
               expect(change.type).to.equal('update');
-              console.log(change);
+              changes.destroy();
               done();
             });
-          });
-
-          newScore.updateAttributes({
-            bat: 'baz'
+            newScore.updateAttributes({
+              bat: 'baz'
+            });
           });
         });
       });
@@ -47,12 +46,13 @@ describe('Subscribe', function() {
         Score.create({team: 'foo'}, function(err, newScore) {
           Score.subscribe(function(err, changes) {
             changes.on('data', function(change) {
-              expect(change.type).to.equal('delete');
+              expect(change.type).to.equal('remove');
+              changes.destroy();
               done();
             });
-          });
 
-          newScore.remove();
+            newScore.remove();
+          });
         });
       });
     });
